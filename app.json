@@ -25,6 +25,15 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "738a27b1-0ca3-49a7-95b1-f213d8f013c4"
+      }
+    },
+    "owner": "helisaarinen",
+    "plugins": [
+      "expo-font"
+    ]
   }
 }

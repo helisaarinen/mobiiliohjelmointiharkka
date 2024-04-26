@@ -1,0 +1,76 @@
+{
+    "turnaukset": {
+        "00001": {
+            "turnaus_id":1,
+            "nimi": "Kesän paras kyläturnaus",
+            "alkuaika": "2024-05-25T12:00:00",
+            "loppuaika":"2024-05-25T18:00:00",
+            "yhteyshenkiloEtunimi": "Heli",
+            "yhteyshenkiloSukunimi": "Saarinen",
+            "email": "helisaarinen@hotmail.com",
+            "puh": "050-5957812"
+    },
+    "00002":{
+            "turnaus_id":2,
+            "nimi": "Kesän paras kyläturnaus",
+            "alkuaika": "2024-05-25T12:00:00",
+            "loppuaika":"2024-05-25T18:00:00",
+            "yhteyshenkiloEtunimi": "Heli",
+            "yhteyshenkiloSukunimi": "Saarinen",       
+            "email": "helisaarinen@hotmail.com",
+            "puh": "050-5957812"
+    }
+}, 
+
+    "ottelut": {
+        "ottelu_id":"",
+        "alkaa": "2024-05-25T12:00:00",
+        "loppuaika":"2024-05-25T12:25:00",
+        "kotijoukkue": "",
+        "vierasjoukkue": "",
+        "kenttä_id":"",
+        "sarja_id":"",
+        "kotimaalit":null,
+        "vierasmaalit":""
+        }, 
+        
+    "seurat": {
+        "000001":{
+        "seura_id":1,
+        "nimi": "Pöxyt",
+        "kunta":"Espoo",
+        "verkkosivu": "www.google.com"
+        },
+        "000002":{
+            "seura_id":2,
+            "nimi": "I-HK",
+            "kunta":"Vantaa",
+            "verkkosivu": "www.google.com"
+            }
+    }, 
+    
+    "joukkueet": {
+        "000001":{
+            "joukkue_id":1,
+            "seura_id": 1,
+            "nimi":"Palloilijat",
+            "Logo": "miten tallennetaan?",
+            "yhteyshenkiloEtunimi":"Helipeli",
+            "yhteyshenkiloSukunimi":"Saarinenpaarinen",
+            "email": "helisaarinen@hotmail.com",
+            "puh":"050-5957812",
+            "suosikki":false
+    },
+    "000002":{
+        "joukkue_id":2,
+        "seura_id": 2,
+        "nimi":"Palloilijat",
+        "Logo": "miten tallennetaan?",
+        "yhteyshenkiloEtunimi":"Helipeli",
+        "yhteyshenkiloSukunimi":"Saarinenpaarinen",
+        "email": "helisaarinen@hotmail.com",
+        "puh":"050-5957812",
+        "suosikki":false
+    }     
+}
+}
