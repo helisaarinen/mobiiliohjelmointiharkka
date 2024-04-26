@@ -18,21 +18,14 @@ export default function TestiSupabase(){
       fetchData();
     }, []);
   
-    // Renderöi jokainen joukkue
-    const renderItem = ({ item }) => (
-      <View>
-        <Text>{item.nimi}</Text>
-        {/* Tähän voit lisätä muita joukkueeseen liittyviä tietoja */}
-      </View>
-    );
   
     return (
         <View style={{marginStart:50, marginTop:50}}>
         <Text>Joukkueet</Text>
-        {/* FlatList, joka näyttää joukkueet */}
+
         <FlatList
           data={joukkueet}
-          keyExtractor={item => item.joukkue_id.toString()} // Olettaen, että jokaisella joukkueella on uniikki id
+          keyExtractor={item => item.joukkue_id.toString()} 
           renderItem={({item}) =>
         <View>
             <Text>{item.nimi}</Text>
