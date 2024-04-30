@@ -37,7 +37,7 @@ export default function Database() {
 
     const [joukkue, setJoukkue] = useState({
         joukkue_id: '',
-        seura_id:'',
+        seura_id:'', //fk
         nimi:'',
         yhteyshenkiloEtunimi: '',
         yhteyshenkiloSukunimi: '',
@@ -56,10 +56,11 @@ export default function Database() {
 
     const [ottelu, setOttelu] = useState({
         ottelu_id:'',
+        turnaus_id: '', // fk lisätty 26.4.24 
         alkaa:'',
         loppuu:'',
-        kotijoukkue:'', //joukkue_id
-        vierasjoukkue:'', //joukkue_id
+        kotijoukkue:'', // fk joukkue_id
+        vierasjoukkue:'', // fk joukkue_id
         kenttä_id:'',
         sarja_id:'',
         kotimaalit:'',
@@ -71,6 +72,12 @@ export default function Database() {
         kentta:''
     })
 
+    const [sarja, setSarja] =useState({
+        sarja_id: '',
+        sarja:''
+    })
+
+    const [sarjat, setSarjat] = useState([]);
     const [turnaukset, setTurnaukset] = useState([]);
     const [joukkueet, setJoukkueet] =useState([]);
     const [seurat, setSeurat] =useState([]);
