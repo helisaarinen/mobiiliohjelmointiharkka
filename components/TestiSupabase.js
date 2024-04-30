@@ -81,10 +81,16 @@ export default function TestiSupabase() {
             <Image
               style={{ width: 50, height: 50, borderRadius: 1, margin: 1 }}
               source={{ uri: item.logo }}
-              onError={() => console.log('kuvan lataaminen epäonnistui')}
+              onError={() => console.log('kuvan lataaminen')}
             />
           </View>}
       />
+
+<Image
+              style={{ width: 50, height: 50, borderRadius: 1, margin: 1 }}
+              source={{ uri: 'https://ulpvgmbqdveehyrvivgk.supabase.co/storage/v1/object/public/logot/IHK_logo_sininen.png?t=2024-04-30T08%3A42%3A43.247Z' }}
+              onError={() => console.log('kuvan lataaminen')}
+            />
 
     </View>
   );
