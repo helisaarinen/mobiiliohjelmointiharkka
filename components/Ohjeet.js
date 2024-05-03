@@ -304,7 +304,7 @@ export default function Ohjeet({navigation}) {
 
                         <List.Accordion
                             title="Vessat"
-                            titleStyle={{color: 'red'}}
+                            //titleStyle={{color: 'red'}}
                             style={styles.ohjepalkit}
                             left={props => <List.Icon {...props} icon="toilet" color='blue' />}
                             expanded={expanded[4]} 

@@ -19,7 +19,7 @@ import Timer from './components/Timer';
 import Suosikit from './components/Suosikit';
 import Kentat from './components/Kentat';
 import Pisteet from './components/Pisteet';
-import {harkkaData} from './components/Supabase'
+import { harkkaData } from './components/Supabase'
 import TestiSupabase from './components/TestiSupabase';
 
 
@@ -35,7 +35,7 @@ function MenuScreen() {
         visible={visible}
         onDismiss={closeMenu}
         anchor={<Button onPress={openMenu}>Show menu</Button>}>
-        <Menu.Item onPress={() => {Ottelut}} title="Sisältö 1" />
+        <Menu.Item onPress={() => { Ottelut }} title="Sisältö 1" />
         <Menu.Item onPress={() => { }} title="Item 2" />
         <Divider />
         <Menu.Item onPress={() => { }} title="Item 3" />
@@ -68,7 +68,7 @@ const screenOptions = ({ route }) => ({
       iconName = 'information-circle-outline';
     } else if (route.name === 'Valikko') {
       iconName = 'menu-outline';
-    }else if (route.name === 'Suosikit') {
+    } else if (route.name === 'Suosikit') {
       iconName = 'menu-outline';
     }
     return <Ionicons name={iconName} size={size} color={color} />;
@@ -102,7 +102,7 @@ const EtusivuStackScreen = ({ navigation }) => (
 
 
 export default function App() {
-  
+
   const [joukkueet, setJoukkueet] = useState([]);
 
   useEffect(() => {
@@ -115,30 +115,24 @@ export default function App() {
 
     fetchData();
   }, []);
-  
+
   return (
-    
-<View>
-  <TestiSupabase/>
 
-</View>
-    
-
-/*
-    <Provider>
-          <NavigationContainer>
-        <Tab.Navigator screenOptions={screenOptions}>
-          <Tab.Screen name="Etusivu" component={EtusivuTabs} />
-          <Tab.Screen name="Ottelut" component={Ottelut} />
-          <Tab.Screen name="Joukkueet" component={Joukkueet} />
-          <Tab.Screen name="Tulokset" component={Tulokset} />
-          <Tab.Screen name="Ohjeet" component={Ohjeet} />
-        </Tab.Navigator>
-        <StatusBar style="auto" />
-      </NavigationContainer>
-      </Provider>
-  */
-     );
+    <View style={{flex:1}}>
+          <Provider>
+              <NavigationContainer>
+            <Tab.Navigator screenOptions={screenOptions}>
+              <Tab.Screen name="Etusivu" component={EtusivuTabs} />
+              <Tab.Screen name="Ottelut" component={Ottelut} />
+              <Tab.Screen name="Joukkueet" component={Joukkueet} />
+              <Tab.Screen name="Tulokset" component={Tulokset} />
+              <Tab.Screen name="Ohjeet" component={Ohjeet} />
+            </Tab.Navigator>
+            <StatusBar style="auto" />
+          </NavigationContainer>
+          </Provider>
+          </View>    
+  );
 }
 const styles = StyleSheet.create({
   container: {

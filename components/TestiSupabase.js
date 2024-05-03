@@ -47,7 +47,7 @@ export default function TestiSupabase() {
 
   return (
     <View style={{ marginStart: 50, marginTop: 50 }}>
-      <Text>Joukkueet</Text>
+  <Text>Joukkueet</Text>
 
       <FlatList
         data={joukkueet}
@@ -77,7 +77,7 @@ export default function TestiSupabase() {
         keyExtractor={item => item.seura_id.toString()}
         renderItem={({ item }) =>
           <View style={{ flexDirection: 'row' }}>
-            <Text>{item.logo} </Text>
+            <Text>{item.nimi} </Text>
             <Image
               style={{ width: 50, height: 50, borderRadius: 1, margin: 1 }}
               source={{ uri: item.logo }}
@@ -86,11 +86,11 @@ export default function TestiSupabase() {
           </View>}
       />
 
-<Image
-              style={{ width: 50, height: 50, borderRadius: 1, margin: 1 }}
-              source={{ uri: 'https://ulpvgmbqdveehyrvivgk.supabase.co/storage/v1/object/public/logot/IHK_logo_sininen.png?t=2024-04-30T08%3A42%3A43.247Z' }}
-              onError={() => console.log('kuvan lataaminen')}
-            />
+      <Image
+        style={{ width: 50, height: 50, borderRadius: 1, margin: 1 }}
+        source={{ uri: 'https://ulpvgmbqdveehyrvivgk.supabase.co/storage/v1/object/public/logot/IHK_logo_sininen.png?t=2024-04-30T08%3A42%3A43.247Z' }}
+        onError={() => console.log('kuvan lataaminen')}
+      />
 
     </View>
   );

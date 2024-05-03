@@ -13,6 +13,7 @@ import Suosikit from './Suosikit';
 
 export default function Etusivu({ navigation }) {
     const Stack = createNativeStackNavigator();
+    
 
     const calculateTimeLeft = () => {
         const difference = +new Date(targetDate) - +new Date();

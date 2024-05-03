@@ -11,6 +11,7 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = 'https://ulpvgmbqdveehyrvivgk.supabase.co'
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVscHZnbWJxZHZlZWh5cnZpdmdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQwNDQ1MjUsImV4cCI6MjAyOTYyMDUyNX0.8cNZ71vUtVvprbLOyDt-C4kmYQnQxpzxyRVy-O-zgK0'
 const supabase = createClient(supabaseUrl, supabaseKey)
+const storageUrl = 'https://ulpvgmbqdveehyrvivgk.supabase.co/storage/v1/s3'
 
 export const harkkaData = async () => {
   const { data: joukkueetData, error: joukkueetError } = await supabase
@@ -23,6 +24,10 @@ export const harkkaData = async () => {
 
   const { data: ottelutData, error: ottelutError } = await supabase
     .from('ottelut')
+    .select('*');
+
+    const { data: kentatData, error: kentatError } = await supabase
+    .from('kentat')
     .select('*');
 
   if (joukkueetError) {
@@ -38,12 +43,13 @@ export const harkkaData = async () => {
   console.log('Joukkueiden hakutulos:', joukkueetData);
   console.log('Otteluiden hakutulos:', ottelutData);
   console.log('Seurojen hakutulos:', seuratData);
+  console.log('Kenttien hakutulos:', kentatData);
   
 
 
   // Tee jotain joukkueiden ja otteluiden tiedoilla, esimerkiksi yhdistä ne tai käsittele erikseen
 
-  return { joukkueet: joukkueetData, ottelut: ottelutData, seurat: seuratData };
+  return { joukkueet: joukkueetData, ottelut: ottelutData, seurat: seuratData, kentat: kentatData };
 
 };
 
