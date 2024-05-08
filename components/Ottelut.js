@@ -83,7 +83,7 @@ export default function Ottelut(route) {
 
   const Item = ({ item, index }) => (
     <View>
-      <View style={styles.yksirivi}>
+      <View>
         <View style={{ flexDirection: 'row', alignItems: 'center', margin: 2 }}>
 
           <View style={styles.klo}>
@@ -171,20 +171,7 @@ export default function Ottelut(route) {
         ></FlatList>
       </View>
 
-      <Text>LOGOT</Text>
-      <FlatList
-        data={seurat}
-        keyExtractor={item => item.seura_id.toString()}
-        renderItem={({ item }) =>
-          <View style={{ flexDirection: 'row' }}>
-            <Text>{item.nimi} </Text>
-            <Image
-              style={{ width: 25, height: 25, borderRadius: 1, margin: 1 }}
-              source={{ uri: item.logo }}
-              onError={() => console.log('kuvan lataaminen')}
-            />
-          </View>}
-      />
+
 
 
 

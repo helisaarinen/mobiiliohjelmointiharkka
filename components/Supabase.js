@@ -18,7 +18,7 @@ export const harkkaData = async () => {
     .from('joukkueet')
     .select('*');
 
-    const { data: seuratData, error: seuratError } = await supabase
+  const { data: seuratData, error: seuratError } = await supabase
     .from('seurat')
     .select('*');
 
@@ -26,9 +26,38 @@ export const harkkaData = async () => {
     .from('ottelut')
     .select('*');
 
-    const { data: kentatData, error: kentatError } = await supabase
+  const { data: kentatData, error: kentatError } = await supabase
     .from('kentat')
     .select('*');
+
+  const { data: turnauksetData, error: turnauksetError } = await supabase
+    .from('turnaukset')
+    .select('*');
+  
+  
+  const { data: hinnastoData, error: hinnastoError } = await supabase
+    .from('hinnasto')
+    .select('*');
+
+    const { data: tuotetyypitData, error: tuotetyypitError } = await supabase
+    .from('tuotetyypit')
+    .select('*');
+
+    if (hinnastoError) {
+      console.error('Virhe haettaessa hinnastoa:', hinnastoError.message);
+      return null;
+    }
+
+    if (tuotetyypitError) {
+      console.error('Virhe haettaessa tuotetyyppejä:', tuotetyypitError.message);
+      return null;
+    }
+
+
+  if (turnauksetError) {
+    console.error('Virhe haettaessa turnausten tietoja:', turnauksetError.message);
+    return null;
+  }
 
   if (joukkueetError) {
     console.error('Virhe haettaessa joukkueiden tietoja:', joukkueetError.message);
@@ -40,16 +69,23 @@ export const harkkaData = async () => {
     return null;
   }
 
-  console.log('Joukkueiden hakutulos:', joukkueetData);
+/*  console.log('Joukkueiden hakutulos:', joukkueetData);
   console.log('Otteluiden hakutulos:', ottelutData);
   console.log('Seurojen hakutulos:', seuratData);
   console.log('Kenttien hakutulos:', kentatData);
-  
+  console.log('Turnaukset: ', turnauksetData);
+*/
+console.log('Hinnasto: ', hinnastoData);
 
-
-  // Tee jotain joukkueiden ja otteluiden tiedoilla, esimerkiksi yhdistä ne tai käsittele erikseen
-
-  return { joukkueet: joukkueetData, ottelut: ottelutData, seurat: seuratData, kentat: kentatData };
+  return { 
+    joukkueet: joukkueetData, 
+    ottelut: ottelutData, 
+    seurat: seuratData, 
+    kentat: kentatData, 
+    turnaukset: turnauksetData, 
+    hinnasto: hinnastoData,
+    tuotetyypit: tuotetyypitData
+  };
 
 };
 

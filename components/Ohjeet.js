@@ -6,7 +6,8 @@ import {
     View,
     Image,
     Linking,
-    ScrollView
+    ScrollView,
+    FlatList
 } from 'react-native';
 import * as React from 'react';
 import { List } from 'react-native-paper';
@@ -19,14 +20,71 @@ import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import Kartta from './Kartta';
 import { spaceRef } from './Database';
+import { harkkaData } from './Supabase';
+import { createClient } from '@supabase/supabase-js';
 
 //npx expo install react-native-maps
 //npx expo install expo-location
+//https://oblador.github.io/react-native-vector-icons/
+
+const supabaseUrl = 'https://ulpvgmbqdveehyrvivgk.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVscHZnbWJxZHZlZWh5cnZpdmdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQwNDQ1MjUsImV4cCI6MjAyOTYyMDUyNX0.8cNZ71vUtVvprbLOyDt-C4kmYQnQxpzxyRVy-O-zgK0'
+const supabase = createClient(supabaseUrl, supabaseKey)
 
 
-export default function Ohjeet({navigation}) {
+export default function Ohjeet({ navigation }) {
 
-    const [expanded, setExpanded] = React.useState({}); 
+    async function uploadFile(file) {
+        try {
+            const { data, error } = await supabase.storage
+                .from('saannot')
+                .upload('Saannot.pdf', file);
+
+            if (error) {
+                console.error('Error uploading file:', error.message);
+            } else {
+                console.log('File uploaded successfully:', data);
+                const fileURL = data.url;
+            }
+        } catch (error) {
+            console.error('Error uploading file:', error.message);
+        }
+    }
+
+    const [turnaus, setTurnaus] = useState([]);
+    const [hinnasto, setHinnasto] = useState([]);
+
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const data = await harkkaData();
+
+                if (data && data.turnaukset && data.turnaukset.length > 0) {
+                    const ekaturnaus = data.turnaukset[0];
+                    setTurnaus(ekaturnaus);
+                    console.log('fetch turnaus: ', ekaturnaus);
+                }
+
+                if (data.hinnasto && data.tuotetyypit) {
+                    const hinnastotuotetyypit = data.hinnasto.map(hinnasto => {
+                        const tuotetyyppi = data.tuotetyypit.find(tuotetyyppi => tuotetyyppi.tuotetyyppi_id === hinnasto.tuotetyyppi_id)?.tuotetyyppi;
+                        return { ...hinnasto };
+                    });
+                    setHinnasto(hinnastotuotetyypit);
+                    console.log('Hinnastofetch: ', hinnastotuotetyypit);
+                } else {
+                    console.error('Ei turnaustietoja saatavilla tai turnaustiedot ovat tyhjiä.');
+                }
+            } catch (error) {
+                console.error('Virhe haettaessa dataa:', error.message);
+            }
+        }
+
+        fetchData();
+    }, []);
+
+
+    const [expanded, setExpanded] = React.useState({});
 
     const handlePress = (index) => {
         setExpanded((prevState) => ({
@@ -43,6 +101,7 @@ export default function Ohjeet({navigation}) {
         );
     };
 
+    // YHTEYSTIEDOT
     const yhteystiedot = () => {
 
         const [region, setRegion] = useState({
@@ -76,38 +135,36 @@ export default function Ohjeet({navigation}) {
             })();
         }, []);
 
-        const [haku, setHaku] = useState('');
+        // const [haku, setHaku] = useState('');
+
         return (
             <View style={{ backgroundColor: 'yellow' }}>
                 <View style={styles.openedPage}>
 
-                    <Text style={styles.header}>Itä-Hakkilan tekonurmi</Text>
+                    <Text style={styles.header}>{turnaus.paikka}</Text>
 
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                    <View style={{ flexDirection: 'row' }}>
 
                         <View>
-                            <Text>Kehruukuja 14, 01260 Vantaa</Text>
-                            <Text>Koulutie 8, 01260 Vantaa
-                            </Text>
+                            <Text style={styles.tekstisisalto}>{turnaus.osoite1}</Text>
+                            <Text style={styles.tekstisisalto}>{turnaus.osoite2}</Text>
                         </View>
 
                         <View>
-
                             <Icon
                                 reverse
                                 name='location-pin'
                                 type='MaterialIcon'
                                 color='blue'
-                                size={50}
+                                size={40}
                                 containerStyle=''
                                 raised=''
-                                onPress={() => navigation.navigate('Joukkueet')}
-
-
+                                onPress={() => Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${turnaus.osoite1}`)}
                             />
-
                         </View>
+
                     </View>
+
                     <View>
                         <MapView
                             key={`${region.latitude}-${region.longitude}`}
@@ -120,13 +177,11 @@ export default function Ohjeet({navigation}) {
                                     longitude: 25.107281
                                 }}>
                             </Marker>
-
                         </MapView>
                     </View>
 
                     <Text style={styles.header}>Turnauksen vastuuhenkilö:</Text>
-                    <Text>nimi</Text>
-                    <Text>puhelinnumero</Text>
+                    <Text style={styles.tekstisisalto}>{turnaus.yhteyshenkiloEtunimi} {turnaus.yhteyshenkiloSukunimi}</Text>
 
                     {/*
                     <Button
@@ -140,14 +195,15 @@ export default function Ohjeet({navigation}) {
                         onPress={handlePhoneCall}
                         title="Button with icon component"
                     />
-            */}
+                    */}
+
                     <View style={{
                         marginVertical: 10,
                         flexDirection: 'row',
                         alignItems: 'center'
                     }}>
-                        <Text>050 595 7812 </Text>
-                        <Icon.Button
+                        <Text onPress={handlePhoneCall}>{turnaus.puh} </Text>
+                        {/**   <Icon.Button
                             style={{
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -158,13 +214,14 @@ export default function Ohjeet({navigation}) {
                             size={30}
                             color="blue"
                             onPress={handlePhoneCall}></Icon.Button>
+                            */}
 
                         <Icon
                             reverse
                             name='phone'
                             type='MaterialIcon'
                             color='blue'
-                            size={50}
+                            size={40}
                             containerStyle=''
                             raised=''
                             onPress={handlePhoneCall}
@@ -172,13 +229,17 @@ export default function Ohjeet({navigation}) {
 
                         {/*<Button title='soita' onPress={handlePhoneCall}></Button>*/}
                     </View>
-                    <Icon.Button name="email" size={30} color="white" onPress={sendEmail}>Sähköposti</Icon.Button>
+                    <Icon.Button
+                        name="email"
+                        size={30}
+                        color="white"
+                        onPress={sendEmail}
+                    >{turnaus.email}</Icon.Button>
 
-                    <Text style={{ color: 'blue' }}
+                    {/*<Text style={{ color: 'blue' }}
                         onPress={handleEmailPress}
                     >helisaarinen@hotmail.com
-                    </Text>
-                    <Text>Lisää kartta!</Text>
+                        </Text>*/}
 
                 </View>
 
@@ -187,88 +248,199 @@ export default function Ohjeet({navigation}) {
     }
 
     const handleEmailPress = () => {
-        //          Linking.openURL(`mailto:${email}`);
         Linking.openURL(`mailto:helisaarinen@hotmail.com`);
     };
 
     const handlePhoneCall = () => {
-        //          Linking.openURL(`mailto:${email}`);
         Linking.openURL(`tel:+358505957812`);
     };
 
     const sendEmail = () => {
-        const to = ['helisaarinen@hotmail.com'] // string or array of email addresses
+        const to = [turnaus.email]
         email(to, {
-            // Optional additional arguments
-            cc: ['helistys82@gmail.com'], // string or array of email addresses
-            //            cc: ['bazzy@moo.com', 'doooo@daaa.com'], // Voi olla useampikin osoite
-            bcc: 'mee@mee.com', // string or array of email addresses
-            subject: 'Show how to use',
-            body: 'Some body right here'
-            // checkCanOpen: false // Call Linking.canOpenURL prior to Linking.openURL
+            cc: ['helistys82@gmail.com'],
+            //cc: ['bazzy@moo.com', 'doooo@daaa.com'], // Voi olla useampikin osoite
+            bcc: 'helisaarinen@hotmail.com',
+            subject: turnaus.nimi,
+            body: 'Kirjoita viesti tähän'
         }).catch(console.error)
     }
 
+    // KAHVILA
     const kahvila = () => {
+
+        const juomat = hinnasto.filter(item => item.tuotetyyppi_id === 1);
+        const suolaiset = hinnasto.filter(item => item.tuotetyyppi_id === 2);
+        const makeat = hinnasto.filter(item => item.tuotetyyppi_id === 3);
+        console.log('Juomat ', juomat);
+        console.log('Suolaiset ', suolaiset);
+
+
+        const Item = ({ item }) => (
+            <View style={styles.item}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text>{item.tuote}</Text>
+                    </View>
+                    <View style={{justifyContent:'flex-end'}}>
+                    <View style={{ justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+                        <Text>{item.hinta.toLocaleString('fi-FI')} €</Text>
+                    </View>
+                </View></View>
+            </View>
+        )
+
         return (
             <View style={{ backgroundColor: 'yellow' }}>
                 <View style={styles.openedPage}>
-                    <Text>kahvilasta saa sitä ja tätä ja maksutapana toimii 
-                        kjdf kj dfkjkfd kjfkdj fkdj fkdj kfjd kfj kdj fkjdkfj dkjf kdjkf....</Text>
-                    <Text style={{fontSize: 20}}>Miten tänne saa Mobilepay-linkin?</Text>
+                    <Text style={styles.tekstisisalto}>Kahvila sijaitsee huoltorakennuksen edessä.</Text>
+                    <Text style={styles.header}>Maksutavat</Text>
+                    <Text style={styles.tekstisisalto}>Käteinen ja MobilePay</Text>
 
+                    <Text style={styles.header}>Hinnasto</Text>
+                    <Text style={styles.h2}>Juomat</Text>
+                    <FlatList
+                        data={juomat}
+                        renderItem={({ item }) => <Item item={item} />}
+                        scrollEnabled={false}
+                        keyExtractor={item => item.hinnasto_id.toString()}
+                    />
 
+                    <Text style={styles.h2}>Suolaiset</Text>
+                    <FlatList
+                        data={suolaiset}
+                        renderItem={({ item }) => <Item item={item} />}
+                        scrollEnabled={false}
+                        keyExtractor={item => item.hinnasto_id.toString()}
+                    />
+
+                    <Text style={styles.h2}>Makeat</Text>
+                    <FlatList
+                        data={makeat}
+                        renderItem={({ item }) => <Item item={item} />}
+                        scrollEnabled={false}
+                        keyExtractor={item => item.hinnasto_id.toString()}
+                    />
 
                 </View></View>
         )
     }
 
-    const kentat = () => {
+    // SÄÄNNÖT
+    const saannot = () => {
+
+        const tiedosto = 'https://ulpvgmbqdveehyrvivgk.supabase.co/storage/v1/object/public/saannot/Saannot.pdf?t=2024-05-06T07%3A23%3A09.701Z';
+
         return (
-
             <View style={{ backgroundColor: 'yellow' }}>
+                <View style={styles.openedPage}>
 
-                <Text>KENTÄT</Text>
-                <Image style={{
-                    width: 270,
-                    height: 200,
-                }}
-                    resizeMode="contain"
-                    source={require('../kentta/kentta.jpg')} />
+                    <Text style={styles.header}>Pelaajamäärä</Text>
+                    <Text style={styles.tekstisisalto}>5v5</Text>
+                    <Text style={styles.tekstisisalto}>Maalivahti + 4 kenttäpelaajaa.</Text>
+                    <Text style={styles.tekstisisalto}>Vaihtopelaajien määrää ei ole rajoitettu.</Text>
 
-            <Image style={{
-                    width: 270,
-                    height: 200,
-                }}
-                    resizeMode="contain"
-                    source={require('../kentta/kentta.png')} />
+                    <Text style={styles.header}>Peliaika</Text>
+                    <Text style={styles.tekstisisalto}>1 x 25 min</Text>
 
-            <Image style={{
-                    width: 270,
-                    height: 200,
-                }}
-                    resizeMode="contain"
-                    source={require('../kentta/kentta.png')} />
+                    <Text style={styles.header}>Pelipallo</Text>
+                    <Text style={styles.tekstisisalto}>Koko 3</Text>
 
+                    <Text style={styles.header}>Jokeri-pelaajasääntö</Text>
+                    <Text style={styles.tekstisisalto}>Joukkue saa ottaa kentälle yhden lisäpelaajan,
+                        kun vastustaja johtaa vähintään viidellä (5) maalilla.</Text>
+                    <Text style={styles.tekstisisalto}>Etu menetetään eron vähentyessä kahteen (2) maaliin.</Text>
+
+                    <Text style={styles.header}>Maalipotku</Text>
+                    <Text style={styles.tekstisisalto}>Maalipotku tuomitaan, kun pallo menemättä maaliin ylittää päätyrajan niin,
+                        että siihen on viimeksi koskenut hyökkäävän joukkueen pelaaja.</Text>
+
+                    <Text style={styles.tekstisisalto}>Maalipotku korvataan 6-9-vuotiaiden ottelussa <Text style={{ fontWeight: 'bold' }}>maalikuljetuksella</Text>.</Text>
+
+                    <Text style={styles.tekstisisalto}>Pallo on pelissä, kun se on selvästi liikkunut.
+                        Vastapelaajien etäisyys on vähintään 5,5 metriä ja rangaistusalueen ulkopuolella, kunnes pallo on pelissä. Kanssapelaajien etäisyyttä pallosta ei ole rajoitettu.
+
+                        Jos pallo menee maalipotkusta suoraan omaan maaliin, maalia ei hyväksytä ja vastajoukkueelle tuomitaan kulmapotku. </Text>
+
+                    <Text style={styles.header}>Rajaheitto</Text>
+                    <Text style={styles.tekstisisalto}>Rajaheitto tuomitaan viimeksi palloa koskeneen pelaajan vastajoukkueelle, kun koko pallo ylittää sivurajan.
+                    </Text>
+                    <Text style={styles.tekstisisalto}>Rajaheitto korvataan 6-9-vuotiaiden ottelussa <Text style={{ fontWeight: 'bold' }}>rajakuljetuksella</Text>. Tällöin pallo asetetaan rajan päälle kohdassa, jossa pallo ylitti sivurajan. Pallo on pelissä, kun se on selvästi liikkunut. Vastapelaajien etäisyys on vähintään 5,5 metriä. Kanssapelaajien etäisyyttä pallosta ei ole rajoitettu.
+                    </Text>
+                    <Text style={styles.tekstisisalto}>Rajakuljetuksesta ei voi ensimmäisellä kosketuksella tehdä suoraan hyväksyttävää maalia. Pallon mennessä suoraan vastustajan maaliin seuraa maalipotku ja jos pallo menee suoraan omaan maaliin seuraa kulmapotku vastustajalle.
+                    </Text>
+
+                    <Text
+                        style={{ fontSize: 16, color: 'blue' }}
+                        onPress={() => Linking.openURL(`${tiedosto}`)}>Säännöt (pdf)</Text>
+
+                </View></View>
+        )
+    }
+
+    // VESSAT
+    const vessat = () => {
+        return (
+            <View style={{ backgroundColor: 'yellow' }}>
+                <View style={styles.openedPage}>
+                    <Text style={styles.tekstisisalto}>Huoltorakennuksesta löytyy yksi yleinen vessa ja kahdessa pukuhuoneessa on myös vessat.</Text>
+                </View></View>
+        )
+    }
+
+    // PYSÄKÖINTI
+    const pysakointi = () => {
+        return (
+            <View style={{ backgroundColor: 'yellow' }}>
+                <View style={styles.openedPage}>
+                    <Text style={styles.tekstisisalto}>Sekä Kehruukujan että Koulutien puolella on pysäköintipaikkoja. Myös koulun pysäköintialuetta voi hyödyntää.</Text>
+                </View>
             </View>
         )
     }
 
+    // KENTÄT
+    const kentat = () => {
+        return (
 
+            <View style={{ backgroundColor: 'yellow' }}>
+                <View style={styles.openedPage}>
+                    <Text style={styles.header}>8v8 pelit</Text>
+                    <Image style={{
+                        width: 280,
+                        height: 140,
+                        backgroundColor: 'green'
+                    }}
+                        resizeMode="contain"
+                        source={require('../kentta/isokentta.png')} />
+
+                    <Text style={styles.header}>5v5 pelit</Text>
+                    <Image style={{
+                        width: 280,
+                        height: 140,
+                        backgroundColor: 'lightblue'
+                    }}
+                        resizeMode="contain"
+                        source={require('../kentta/pikkukentat.png')} />
+
+                </View>
+            </View>
+        )
+    }
 
     return (
         <View style={styles.container}>
             <View style={{ width: '95%', backgroundColor: 'yellow', padding: 10, flex: 1 }}>
                 <ScrollView>
-                    <List.Section style={{backgroundColor:'pink'}}
+                    <List.Section style={{ backgroundColor: 'pink' }}
                     >
                         <List.Accordion
                             title="Yhteystiedot"
                             left={props => <List.Icon {...props} icon="email" />}
                             style={styles.ohjepalkit}
-                            expanded={expanded[0]} 
+                            expanded={expanded[0]}
                             onPress={() => handlePress(0)}
-                         >
+                        >
                             {renderContent(yhteystiedot())}
                         </List.Accordion>
 
@@ -279,25 +451,25 @@ export default function Ohjeet({navigation}) {
                             expanded={expanded[1]}
                             onPress={() => handlePress(1)}
                         >
-                            {renderContent(kentat())}
+                            {renderContent(pysakointi())}
                         </List.Accordion>
 
                         <List.Accordion
                             title="Kentät"
                             style={styles.ohjepalkit}
                             left={props => <List.Icon {...props} icon="soccer-field" />}
-                            expanded={expanded[2]} 
-                            onPress={() => handlePress(2)} 
+                            expanded={expanded[2]}
+                            onPress={() => handlePress(2)}
                         >
                             {renderContent(kentat())}
                         </List.Accordion>
 
                         <List.Accordion
-                            title="Kahvilaaaaa"
+                            title="Kahvila"
                             style={styles.ohjepalkit}
                             left={props => <List.Icon {...props} icon="coffee" />}
-                            expanded={expanded[3]} 
-                            onPress={() => handlePress(3)} 
+                            expanded={expanded[3]}
+                            onPress={() => handlePress(3)}
                         >
                             {renderContent(kahvila())}
                         </List.Accordion>
@@ -306,14 +478,28 @@ export default function Ohjeet({navigation}) {
                             title="Vessat"
                             //titleStyle={{color: 'red'}}
                             style={styles.ohjepalkit}
-                            left={props => <List.Icon {...props} icon="toilet" color='blue' />}
-                            expanded={expanded[4]} 
-                            onPress={() => handlePress(4)} 
+                            //                            left={props => <List.Icon {...props} icon="toilet" color='blue'/>}
+                            left={props => <List.Icon {...props} icon="toilet" />}
+                            expanded={expanded[4]}
+                            onPress={() => handlePress(4)}
                         >
-                            {renderContent(kahvila())}
+                            {renderContent(vessat())}
                         </List.Accordion>
-                    </List.Section>
 
+                        <List.Accordion
+                            title="Säännöt ja jotain muuta tosi pitkä teksti"
+                            titleNumberOfLines={2}
+                            style={styles.ohjepalkit}
+                            left={props => <List.Icon {...props} icon="book-open-variant" />}
+                            expanded={expanded[5]}
+                            onPress={() => handlePress(5)}
+                        >
+
+                            {renderContent(saannot())}
+                        </List.Accordion>
+
+
+                    </List.Section>
                 </ScrollView>
             </View>
         </View>
@@ -328,20 +514,24 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
     },
     ohjepalkit: {
-        backgroundColor: 'lightblue',
-//        marginHorizontal: 10,
-        backfaceVisibility:'hidden',
+        //backgroundColor: 'lightblue',
+        backgroundColor: 'pink',
+
+        //        marginHorizontal: 10,
+        backfaceVisibility: 'hidden',
         marginVertical: 1,
         borderRadius: 10,
         color: 'green',
-        overflow:'hidden',
-        textDecorationColor:'yellow' //MIKÄ TÄÄ ON?
+        overflow: 'hidden',
+        textDecorationLine: 'line-through',
+        textDecorationColor: 'purple', //MIKÄ TÄÄ ON?
     },
-    
+
     openedPage: {
         flex: 1,
         backgroundColor: 'lightgreen',
         width: 280,
+        marginVertical: 10
         //        justifyContent: 'center',
         // alignItems: 'center',
         //padding: 1
@@ -349,15 +539,39 @@ const styles = StyleSheet.create({
     header: {
         fontSize: 20,
         fontWeight: 'bold',
-        paddingTop: 10,
-        marginVertical: 10
+        paddingTop: 5,
+        marginVertical: 5
+    },
+
+    h2: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        paddingTop: 10
 
     },
+
+    tekstisisalto: {
+        fontSize: 16,
+        //        fontWeight: 'bold',
+        //      paddingTop: 10,
+        marginBottom: 5
+    },
+
     mapstyle: {
         width: '100%',
         height: 200
 
-    }
+    },
+    item: {
+        backgroundColor: '#f9c2ff',
+//        color: 'black',
+        //padding: 2,
+        marginVertical: 4,
+        marginHorizontal: 15,
+        flexDirection: 'column',
+        //        alignItems: 'center',
+
+    },
 
 
 });
