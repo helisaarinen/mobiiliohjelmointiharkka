@@ -1,9 +1,16 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, FlatList, Image, Alert, Button, Modal } from 'react-native';
+import { StyleSheet, 
+  Text, 
+  View, 
+  FlatList, 
+  Image, 
+  Alert, 
+  Button, 
+  Modal } from 'react-native';
 import Pisteet from './Pisteet';
 import { harkkaData } from './Supabase';
 import { useEffect, useState } from 'react';
-
+import styles from '../style/styles';
 
 export default function Tulokset({ navigation }) {
 
@@ -89,35 +96,37 @@ export default function Tulokset({ navigation }) {
 
   const Item = ({ item, index }) => (
     <View>
-      <View style={styles.yksirivi}>
+      <View>
         <View style={{ flexDirection: 'row', alignItems: 'center', margin: 2 }}>
 
-          <View style={styles.klo}>
+          <View style={styles.tuloksetKlo}>
             <Text>{item.alkuaika}-</Text>
             <Text>{item.loppuaika}</Text>
           </View>
 
 
-          <View style={styles.koti}>
+          <View style={styles.tuloksetKoti}>
+          <View style={{ flex: 1 }}>
             <Text onPress={() => showalert(item.koti)}
-              style={{ flexWrap: 'wrap' }}>{item.kotijoukkue}</Text>
+              style={{ flexWrap: 'wrap'}}>{item.kotijoukkue}</Text>
+            </View>
             <Image
-              style={styles.logo}
+              style={styles.logoPieni}
               source={{ uri: item.kotilogo }}
               onPress={() => showalert(item.koti)}
             />
           </View>
 
-          <View style={styles.tulos}>
-            <View style={{ flexDirection: 'row' }}>
+          <View style={styles.tuloksetTulos}>
+            <View style={{ flexDirection: 'row', justifyContent:'center' }}>
               <Text style={styles.numerot}>{item.kotimaalit}</Text>
               <Text style={styles.numerot}>-</Text>
               <Text style={styles.numerot}>{item.vierasmaalit}</Text></View>
           </View>
 
-          <View style={styles.vieras}>
+          <View style={styles.tuloksetVieras}>
             <Image
-              style={styles.logo}
+              style={styles.logoPieni}
               source={{ uri: item.vieraslogo }}
               onPress={() => showVierasAlert(item.vieras)}
             />
@@ -135,7 +144,7 @@ export default function Tulokset({ navigation }) {
 
   const itemSeparator = () => {
     return (<View style={{
-      backgroundColor: 'purple',
+      backgroundColor: '#35ADF7',
       width: '100%',
       height: 1,
       alignSelf: 'center',
@@ -150,13 +159,10 @@ export default function Tulokset({ navigation }) {
 
   return (
     <View style={styles.container}>
-
       <View style={{ backgroundColor: 'lightblue', width: '95%', marginTop: 5 }}>
+        {/**         <Button title='PISTEET' onPress={() => navigation.navigate('Pisteet')}></Button>*/}
 
-        {/**         <Button title='PISTEET' onPress={() => navigation.navigate('Pisteet')}></Button>
-*/}
-
-        <Button title='PISTEET' onPress={() => setModalVisible(true)}/>
+        <Button title='PISTEET' onPress={() => setModalVisible(true)} />
         <Modal
           animationType={"slide"}
           transparent={true}
@@ -169,29 +175,32 @@ export default function Tulokset({ navigation }) {
             </View>
           </View>
         </Modal>
+      </View>
 
+      <View style={styles.ottelutFlatlist }>
 
-        <View style={{ flexDirection: 'row', borderBottomColor: 'blue', borderBottomWidth: 2, borderColor: 'blue', height: 30, alignItems: 'center' }}>
+        <View style={styles.ottelutFlatlistHeader}>
           <Text style={{ width: '20%' }}>Klo</Text>
           <Text style={{ width: '30%' }}>Koti</Text>
           <Text style={{ width: '20%' }}>Tulos</Text>
           <Text style={{ width: '30%' }}>Vieras</Text>
         </View>
+
         <FlatList
           data={ottelut}
           renderItem={Item}
           ItemSeparatorComponent={itemSeparator}
           keyExtractor={item => item.ottelu_id.toString()}
         ></FlatList>
+
       </View>
-
-
 
       <StatusBar style="auto" />
     </View>
   );
 }
 
+/** 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -246,4 +255,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   }
 
-});
+})*/;

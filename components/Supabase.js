@@ -42,6 +42,7 @@ export const harkkaData = async () => {
     const { data: tuotetyypitData, error: tuotetyypitError } = await supabase
     .from('tuotetyypit')
     .select('*');
+    
 
     if (hinnastoError) {
       console.error('Virhe haettaessa hinnastoa:', hinnastoError.message);
@@ -74,8 +75,10 @@ export const harkkaData = async () => {
   console.log('Seurojen hakutulos:', seuratData);
   console.log('Kenttien hakutulos:', kentatData);
   console.log('Turnaukset: ', turnauksetData);
-*/
+
 console.log('Hinnasto: ', hinnastoData);
+console.log('Turnaukset: ', turnauksetData);
+*/
 
   return { 
     joukkueet: joukkueetData, 

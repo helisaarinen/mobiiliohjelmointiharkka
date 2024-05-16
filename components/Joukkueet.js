@@ -1,8 +1,16 @@
 import { StatusBar } from "expo-status-bar";
 import { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, FlatList, Image } from "react-native";
+import { StyleSheet, 
+Text, 
+View, 
+Button, 
+TextInput, 
+SafeAreaView, 
+FlatList, 
+Image } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { harkkaData } from "./Supabase";
+import styles from "../style/styles";
 
 export default function Joukkueet() {
 
@@ -53,42 +61,6 @@ export default function Joukkueet() {
     fetchData();
   }, []);
 
-  /*
-  const joukkueet = [
-      {
-      id:1,
-      joukkue: 'ihk',
-      logo: require('../logot/IHK_logo_sininen.png')
-  },
-  {
-      id:2,
-      joukkue: 'koips',
-      logo: require('../logot/IHK_logo_sininen.png')
-  },
-  {
-      id:3,
-      joukkue: 'pps',
-      logo: require('../logot/IHK_logo_sininen.png')
-  },
-  {
-      id:4,
-      joukkue: 'PuiU',
-      logo: require('../logot/IHK_logo_sininen.png')
-  },
-  {
-      id:5,
-      joukkue: 'Vps',
-      logo: require('../logot/IHK_logo_sininen.png')
-  },
-  {
-      id:6,
-      joukkue: 'Kops',
-      logo: require('../logot/IHK_logo_sininen.png')
-  }
-  
-  ];
-  */
-
   const sortedJoukkueet = joukkueet.sort((a, b) => a.nimi.localeCompare(b.nimi));
 
   const Item = ({ item }) => (
@@ -96,51 +68,42 @@ export default function Joukkueet() {
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Image
-            style={{ width: 50, height: 50, borderRadius: 1, margin: 1 }}
+            style={{ width: 40, height: 40, borderRadius: 1, margin: 1 }}
             source={{ uri: item.logo }}
           />
-          <Text style={styles.title}>{item.nimi}</Text>
+          <Text style={styles.joukkueetName}>{item.nimi}</Text>
         </View>
-        <Icon name='heart' style={{ fontSize: 20, paddingLeft: 10, }} />
       </View>
     </View>
   )
 
 
+  const itemSeparator = () => {
+    return (<View style={{
+      backgroundColor: '#35ADF7',
+      width: '100%',
+      height: 1,
+      alignSelf: 'center',
+      marginVertical: 2,
+
+    }}></View>);
+  }
+
   return (
     <View style={styles.container}>
+      
+      <View style={styles.ottelutFlatlist}>
 
-      <Text>Joukkueet</Text>
       <FlatList
         data={sortedJoukkueet}
         renderItem={Item}
+        ItemSeparatorComponent={itemSeparator}
         keyExtractor={item => item.joukkue_id.toString()}
       ></FlatList>
 
     </View>
+    </View>
 
   )
 };
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    // backgroundColor:'yellow'
-  },
-  item: {
-    backgroundColor: '#f9c2ff',
-    color: 'black',
-    padding: 5,
-    marginVertical: 1,
-    marginHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-
-
-  },
-  title: {
-    fontSize: 18,
-    marginLeft: 10,
-    //     backgroundColor:'blue',
-    width: '65%'
-  },
-});
+;

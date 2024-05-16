@@ -22,6 +22,7 @@ import Kartta from './Kartta';
 import { spaceRef } from './Database';
 import { harkkaData } from './Supabase';
 import { createClient } from '@supabase/supabase-js';
+import styles from '../style/styles';
 
 //npx expo install react-native-maps
 //npx expo install expo-location
@@ -32,7 +33,15 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 
-export default function Ohjeet({ navigation }) {
+export default function Ohjeet({ navigation, route }) {
+
+    
+    useEffect(() => {
+        if (route.params && route.params.openAccordion) {
+          handlePress(2); // Avaa "Kentät" -accordion, jos openAccordion on true
+        }
+      }, [route.params]);
+
 
     async function uploadFile(file) {
         try {
@@ -43,7 +52,7 @@ export default function Ohjeet({ navigation }) {
             if (error) {
                 console.error('Error uploading file:', error.message);
             } else {
-                console.log('File uploaded successfully:', data);
+               // console.log('File uploaded successfully:', data);
                 const fileURL = data.url;
             }
         } catch (error) {
@@ -62,7 +71,7 @@ export default function Ohjeet({ navigation }) {
                 if (data && data.turnaukset && data.turnaukset.length > 0) {
                     const ekaturnaus = data.turnaukset[0];
                     setTurnaus(ekaturnaus);
-                    console.log('fetch turnaus: ', ekaturnaus);
+                  //  console.log('fetch turnaus: ', ekaturnaus);
                 }
 
                 if (data.hinnasto && data.tuotetyypit) {
@@ -71,7 +80,7 @@ export default function Ohjeet({ navigation }) {
                         return { ...hinnasto };
                     });
                     setHinnasto(hinnastotuotetyypit);
-                    console.log('Hinnastofetch: ', hinnastotuotetyypit);
+                    //console.log('Hinnastofetch: ', hinnastotuotetyypit);
                 } else {
                     console.error('Ei turnaustietoja saatavilla tai turnaustiedot ovat tyhjiä.');
                 }
@@ -85,6 +94,7 @@ export default function Ohjeet({ navigation }) {
 
 
     const [expanded, setExpanded] = React.useState({});
+
 
     const handlePress = (index) => {
         setExpanded((prevState) => ({
@@ -138,7 +148,7 @@ export default function Ohjeet({ navigation }) {
         // const [haku, setHaku] = useState('');
 
         return (
-            <View style={{ backgroundColor: 'yellow' }}>
+            <View >
                 <View style={styles.openedPage}>
 
                     <Text style={styles.header}>{turnaus.paikka}</Text>
@@ -266,32 +276,69 @@ export default function Ohjeet({ navigation }) {
         }).catch(console.error)
     }
 
+    // PYSÄKÖINTI
+    const pysakointi = () => {
+        return (
+            <View >
+                <View style={styles.openedPage}>
+                    <Text style={styles.tekstisisalto}>Sekä Kehruukujan että Koulutien puolella on pysäköintipaikkoja. Myös koulun pysäköintialuetta voi hyödyntää.</Text>
+                </View>
+            </View>
+        )
+    }
+
+    // KENTÄT
+    const kentat = () => {
+        return (
+
+            <View>
+                <View style={styles.openedPage}>
+                    <Text style={styles.header}>8v8 pelit</Text>
+                    <Image style={{
+                        width: 280,
+                        height: 140,
+                       // backgroundColor: 'green'
+                    }}
+                        resizeMode="contain"
+                        source={require('../kentta/isokentta.png')} />
+
+                    <Text style={styles.header}>5v5 pelit</Text>
+                    <Image style={{
+                        width: 280,
+                        height: 140,
+                        //backgroundColor: 'lightblue'
+                    }}
+                        resizeMode="contain"
+                        source={require('../kentta/pikkukentat.png')} />
+
+                </View>
+            </View>
+        )
+    }
+
     // KAHVILA
     const kahvila = () => {
 
         const juomat = hinnasto.filter(item => item.tuotetyyppi_id === 1);
         const suolaiset = hinnasto.filter(item => item.tuotetyyppi_id === 2);
         const makeat = hinnasto.filter(item => item.tuotetyyppi_id === 3);
-        console.log('Juomat ', juomat);
-        console.log('Suolaiset ', suolaiset);
-
-
+      
         const Item = ({ item }) => (
             <View style={styles.item}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Text>{item.tuote}</Text>
+                        <Text style={styles.tekstisisalto}>{item.tuote}</Text>
                     </View>
-                    <View style={{justifyContent:'flex-end'}}>
-                    <View style={{ justifyContent: 'flex-end', alignItems: 'flex-end' }}>
-                        <Text>{item.hinta.toLocaleString('fi-FI')} €</Text>
-                    </View>
-                </View></View>
+                    <View style={{ justifyContent: 'flex-end' }}>
+                        <View style={{ justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+                            <Text style={styles.tekstisisalto}>{item.hinta.toLocaleString('fi-FI')} €</Text>
+                        </View>
+                    </View></View>
             </View>
         )
 
         return (
-            <View style={{ backgroundColor: 'yellow' }}>
+            <View>
                 <View style={styles.openedPage}>
                     <Text style={styles.tekstisisalto}>Kahvila sijaitsee huoltorakennuksen edessä.</Text>
                     <Text style={styles.header}>Maksutavat</Text>
@@ -326,13 +373,24 @@ export default function Ohjeet({ navigation }) {
         )
     }
 
+    // VESSAT
+    const vessat = () => {
+        return (
+            <View>
+                <View style={styles.openedPage}>
+                    <Text style={styles.tekstisisalto}>Huoltorakennuksesta löytyy yksi yleinen vessa ja kahdessa pukuhuoneessa on myös vessat.</Text>
+                </View></View>
+        )
+    }
+
+
     // SÄÄNNÖT
     const saannot = () => {
 
         const tiedosto = 'https://ulpvgmbqdveehyrvivgk.supabase.co/storage/v1/object/public/saannot/Saannot.pdf?t=2024-05-06T07%3A23%3A09.701Z';
 
         return (
-            <View style={{ backgroundColor: 'yellow' }}>
+            <View>
                 <View style={styles.openedPage}>
 
                     <Text style={styles.header}>Pelaajamäärä</Text>
@@ -378,66 +436,22 @@ export default function Ohjeet({ navigation }) {
         )
     }
 
-    // VESSAT
-    const vessat = () => {
-        return (
-            <View style={{ backgroundColor: 'yellow' }}>
-                <View style={styles.openedPage}>
-                    <Text style={styles.tekstisisalto}>Huoltorakennuksesta löytyy yksi yleinen vessa ja kahdessa pukuhuoneessa on myös vessat.</Text>
-                </View></View>
-        )
-    }
-
-    // PYSÄKÖINTI
-    const pysakointi = () => {
-        return (
-            <View style={{ backgroundColor: 'yellow' }}>
-                <View style={styles.openedPage}>
-                    <Text style={styles.tekstisisalto}>Sekä Kehruukujan että Koulutien puolella on pysäköintipaikkoja. Myös koulun pysäköintialuetta voi hyödyntää.</Text>
-                </View>
-            </View>
-        )
-    }
-
-    // KENTÄT
-    const kentat = () => {
-        return (
-
-            <View style={{ backgroundColor: 'yellow' }}>
-                <View style={styles.openedPage}>
-                    <Text style={styles.header}>8v8 pelit</Text>
-                    <Image style={{
-                        width: 280,
-                        height: 140,
-                        backgroundColor: 'green'
-                    }}
-                        resizeMode="contain"
-                        source={require('../kentta/isokentta.png')} />
-
-                    <Text style={styles.header}>5v5 pelit</Text>
-                    <Image style={{
-                        width: 280,
-                        height: 140,
-                        backgroundColor: 'lightblue'
-                    }}
-                        resizeMode="contain"
-                        source={require('../kentta/pikkukentat.png')} />
-
-                </View>
-            </View>
-        )
-    }
-
     return (
         <View style={styles.container}>
-            <View style={{ width: '95%', backgroundColor: 'yellow', padding: 10, flex: 1 }}>
+            <View style={{
+                paddingTop: 10,
+                width: '100%',
+                padding: 10,
+                flex: 1,
+                backfaceVisibility: 'hidden',
+                //backgroundColor: 'pink',
+            }}>
                 <ScrollView>
-                    <List.Section style={{ backgroundColor: 'pink' }}
-                    >
+                    <List.Section>
                         <List.Accordion
                             title="Yhteystiedot"
                             left={props => <List.Icon {...props} icon="email" />}
-                            style={styles.ohjepalkit}
+                            style={styles.listaccordion}
                             expanded={expanded[0]}
                             onPress={() => handlePress(0)}
                         >
@@ -446,7 +460,7 @@ export default function Ohjeet({ navigation }) {
 
                         <List.Accordion
                             title="Pysäköinti"
-                            style={styles.ohjepalkit}
+                            style={styles.listaccordion}
                             left={props => <List.Icon {...props} icon="parking" />}
                             expanded={expanded[1]}
                             onPress={() => handlePress(1)}
@@ -456,7 +470,7 @@ export default function Ohjeet({ navigation }) {
 
                         <List.Accordion
                             title="Kentät"
-                            style={styles.ohjepalkit}
+                            style={styles.listaccordion}
                             left={props => <List.Icon {...props} icon="soccer-field" />}
                             expanded={expanded[2]}
                             onPress={() => handlePress(2)}
@@ -466,7 +480,7 @@ export default function Ohjeet({ navigation }) {
 
                         <List.Accordion
                             title="Kahvila"
-                            style={styles.ohjepalkit}
+                            style={styles.listaccordion}
                             left={props => <List.Icon {...props} icon="coffee" />}
                             expanded={expanded[3]}
                             onPress={() => handlePress(3)}
@@ -477,7 +491,7 @@ export default function Ohjeet({ navigation }) {
                         <List.Accordion
                             title="Vessat"
                             //titleStyle={{color: 'red'}}
-                            style={styles.ohjepalkit}
+                            style={styles.listaccordion}
                             //                            left={props => <List.Icon {...props} icon="toilet" color='blue'/>}
                             left={props => <List.Icon {...props} icon="toilet" />}
                             expanded={expanded[4]}
@@ -487,9 +501,9 @@ export default function Ohjeet({ navigation }) {
                         </List.Accordion>
 
                         <List.Accordion
-                            title="Säännöt ja jotain muuta tosi pitkä teksti"
+                            title="Säännöt ja jotain muuta tosi pitkä teksti otsikossa"
                             titleNumberOfLines={2}
-                            style={styles.ohjepalkit}
+                            style={styles.listaccordion}
                             left={props => <List.Icon {...props} icon="book-open-variant" />}
                             expanded={expanded[5]}
                             onPress={() => handlePress(5)}
@@ -506,72 +520,3 @@ export default function Ohjeet({ navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: 'white',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-    },
-    ohjepalkit: {
-        //backgroundColor: 'lightblue',
-        backgroundColor: 'pink',
-
-        //        marginHorizontal: 10,
-        backfaceVisibility: 'hidden',
-        marginVertical: 1,
-        borderRadius: 10,
-        color: 'green',
-        overflow: 'hidden',
-        textDecorationLine: 'line-through',
-        textDecorationColor: 'purple', //MIKÄ TÄÄ ON?
-    },
-
-    openedPage: {
-        flex: 1,
-        backgroundColor: 'lightgreen',
-        width: 280,
-        marginVertical: 10
-        //        justifyContent: 'center',
-        // alignItems: 'center',
-        //padding: 1
-    },
-    header: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        paddingTop: 5,
-        marginVertical: 5
-    },
-
-    h2: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        paddingTop: 10
-
-    },
-
-    tekstisisalto: {
-        fontSize: 16,
-        //        fontWeight: 'bold',
-        //      paddingTop: 10,
-        marginBottom: 5
-    },
-
-    mapstyle: {
-        width: '100%',
-        height: 200
-
-    },
-    item: {
-        backgroundColor: '#f9c2ff',
-//        color: 'black',
-        //padding: 2,
-        marginVertical: 4,
-        marginHorizontal: 15,
-        flexDirection: 'column',
-        //        alignItems: 'center',
-
-    },
-
-
-});
